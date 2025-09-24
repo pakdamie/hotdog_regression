@@ -42,8 +42,14 @@ def clean_stadium_data(stadium_data):
     #Then remove redundant location column
     stadium_data = stadium_data.drop(['Location'], axis = 1)
 
-    #Shortened team name
-    stadium_data['Team_Short']  = stadium_data['Team'].str.split().str[-1]
+    #Shortened team name: use
+    def extract_team(row):
+        if row["City"] in row["Team"]:
+            return row["Team"].replace(row["City"], "").strip()
+        elif row["State"] in row["Team"]:
+            return row["Team"].replace(row["State"], "").strip()
+        else:
+            return row["Team"]
 
     return(stadium_data)
 
@@ -57,3 +63,5 @@ def clean_hotdog_data(hotdog_data):
     hotdog_data["Team"] = hotdog_data["Team"].replace("A's", "Athletics")
 
     return(hotdog_data)
+
+

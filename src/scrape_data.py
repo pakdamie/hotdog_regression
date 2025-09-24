@@ -17,8 +17,8 @@ def retrieve_hotdog_prices():
     response = requests.get(url)
     response.raise_for_status() 
 
-    df = pd.read_csv(url,sep="\t") #Tab delimited not comma delimited
-
+    df = pd.read_csv(url,sep="\t")
+     #Tab delimited not comma delimited
     return df
 
 

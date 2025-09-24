@@ -1,0 +1,71 @@
+---
+title: "Hot dog regression"
+format: html
+---
+
+```{python}
+import src
+import pandas as pd
+from thefuzz import process
+from plotnine import *
+```
+
+```{python}
+stadium_raw_data = retrieve_bb_stadium_wiki()
+hotdog_raw_data = retrieve_hotdog_prices()
+
+stadium_df = clean_stadium_data(stadium_raw_data)
+hotdog_df = clean_hotdog_data(hotdog_raw_data)
+```
+
+
+```{python}
+stadium_df["Team"] = stadium_df ["Team"].apply(
+    lambda x: process.extractOne(x, hotdog_df["Team"])[0]
+)
+
+full_df = stadium_df.merge(hotdog_df, left_on="Team", right_on="Team", how = "left")
+```
+
+
+## Exploratory Data analysis
+```{python}
+full_df['Price'].describe()
+print(full_df[full_df.Price == full_df.Price.max()])
+print(full_df[full_df.Price == full_df.Price.min()])
+```
+
+We have 30 teams representing the MLB conference.  We can see that hotdog prices have an average of 5.98 with the minimum price being Toronto's Blue Jays at $2.55 and the maximum price is West Sacramento' Athletics with $8.39. Toronto is notoroious for its high cost of living, so this already suggest that the cost of living cannot fully explain for the hotdog prices.
+
+## Is there a correlation between the age of the stadium and hotdog price?
+
+```{python}
+(ggplot(full_df, aes(x = 'Age', y= 'Price')) + geom_point(size = 2) + theme_classic())
+```
+
+It seems that the majority of stadiums are less 50 years old, and the two outliers (Fenway Park, Boston and Wrigley Park, Chicago) may be making it hard to see if there's any relationship?
+
+```{python}
+
+subset_age_nooutlier = full_df[full_df['Age'] < 90]
+
+(ggplot(subset_age_nooutlier , aes(x = 'Age', y= 'Price')) + geom_point(size = 2) + theme_classic())
+
+```
+
+I'm not convinced that there is a relationship.
+
+## Is there a correlation between the stadium capacity and hotdog price?
+
+```{python}
+
+(ggplot(full_df , aes(x = 'Capacity', y= 'Price')) + geom_point(size = 2) + theme_classic())
+
+```
+
+Out of my own curiosity, is there a relationship between
+age and stadium capacity
+
+```{python}
+(ggplot(full_df , aes(x = 'Capacity', y= 'Price')) + geom_point(size = 2) + theme_classic())
+```
